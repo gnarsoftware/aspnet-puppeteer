@@ -24,8 +24,13 @@ jobs:
 
       - id: ours
         run: |
-          docker pull gnarsoftware/aspnet-puppeteer:${{ matrix.dotnet }} >/dev/null || true
-          echo "digest=$(docker inspect --format='{{ index .Config.Labels "base.digest" }}' gnarsoftware/aspnet-puppeteer:${{ matrix.dotnet }} 2>/dev/null || echo none)" >> $GITHUB_OUTPUT
+          if docker pull gnarsoftware/aspnet-puppeteer:${{ matrix.dotnet }} >/dev/null 2>&1; then
+            digest=$(docker inspect --format='{{ index .Config.Labels "base.digest" }}' gnarsoftware/aspnet-puppeteer:${{ matrix.dotnet }} 2>/dev/null || echo none)
+            [ -z "$digest" ] && digest=none
+          else
+            digest=none
+          fi
+          echo "digest=$digest" >> $GITHUB_OUTPUT
 
       - if: steps.upstream.outputs.digest != steps.ours.outputs.digest
         uses: docker/login-action@v4
