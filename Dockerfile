@@ -20,10 +20,10 @@ RUN install -d -m 0755 /etc/apt/keyrings \
     && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
        > /etc/apt/sources.list.d/google-chrome.list \
     && apt-get update \
-    && apt-get install -y google-chrome-unstable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libgdiplus \
+    && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libgdiplus \
       --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-unstable
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 
 #####################
 #END PUPPETEER RECIPE
