@@ -4,7 +4,9 @@ COPY sshd_config /etc/ssh/
 
 # Use Azure's Ubuntu mirror (archive.ubuntu.com is currently being DDoSed)
 # This can be removed when Ubuntu's servers are back online.
-RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://azure.archive.ubuntu.com/ubuntu|g; s|http://security.ubuntu.com/ubuntu|http://azure.archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources
+RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
+      sed -i 's|http://archive.ubuntu.com/ubuntu|http://azure.archive.ubuntu.com/ubuntu|g; s|http://security.ubuntu.com/ubuntu|http://azure.archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources; \
+    fi
 
 #####################
 #PUPPETEER RECIPE
