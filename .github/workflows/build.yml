@@ -1,0 +1,42 @@
+name: Build on base image update
+
+on:
+  workflow_dispatch:
+    #  schedule:
+    #    - cron: "0 6 * * *"
+    #  push:
+    #    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dotnet: [ "8.0", "9.0", "10.0" ]
+    steps:
+      - uses: actions/checkout@v6
+
+      - id: upstream
+        run: |
+          docker pull mcr.microsoft.com/dotnet/aspnet:${{ matrix.dotnet }} >/dev/null
+          echo "digest=$(docker inspect --format='{{index .RepoDigests 0}}' mcr.microsoft.com/dotnet/aspnet:${{ matrix.dotnet }})" >> $GITHUB_OUTPUT
+
+      - id: ours
+        run: |
+          docker pull elite747/aspnet-puppeteer-azure:${{ matrix.dotnet }} >/dev/null || true
+          echo "digest=$(docker inspect --format='{{ index .Config.Labels "base.digest" }}' elite747/aspnet-puppeteer-azure:${{ matrix.dotnet }} 2>/dev/null || echo none)" >> $GITHUB_OUTPUT
+
+      - if: steps.upstream.outputs.digest != steps.ours.outputs.digest
+        uses: docker/login-action@v4
+        with:
+          username: elite747
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - if: steps.upstream.outputs.digest != steps.ours.outputs.digest
+        uses: docker/build-push-action@v7
+        with:
+          push: true
+          build-args: DOTNET_VERSION=${{ matrix.dotnet }}
+          tags: elite747/aspnet-puppeteer-azure:${{ matrix.dotnet }}
+          labels: base.digest=${{ steps.upstream.outputs.digest }}
